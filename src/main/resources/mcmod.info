@@ -1,0 +1,16 @@
+[
+{
+  "modid": "xpmagic",
+  "name": "XPMagic",
+  "description": "A mod which adds machines that work with XP",
+  "version": "0.1 alpha",
+  "mcversion": "1.12.2",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["GatheredSatyr53"],
+  "credits": "Created by GatheredSatyr53",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

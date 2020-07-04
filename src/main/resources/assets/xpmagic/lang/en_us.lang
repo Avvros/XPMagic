@@ -1,0 +1,6 @@
+item.memory_powder.name=Memory Powder
+item.processing_chip.name=Processing Chip
+item.xp_cocktail.name=XP Cocktail
+tile.xp_keeping_machine.name=XP Keeping Machine
+itemGroup.xpmagic=XPMagic
+xpcocktail.storedexp=Stored XP

@@ -1,0 +1,30 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " # ",
+        "XYZ",
+        " $ "
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:redstone"
+        },
+        "X": {
+            "item": "minecraft:iron_ingot"
+        },
+        "Y": {
+            "item": "minecraft:dye",
+            "data": 4
+        },
+        "Z": {
+            "item": "minecraft:gold_ingot"
+        },
+        "$": {
+            "item": "minecraft:gunpowder"
+        }
+    },
+    "result": {
+        "item": "xpmagic:memory_powder",
+        "count": 4
+    }
+}

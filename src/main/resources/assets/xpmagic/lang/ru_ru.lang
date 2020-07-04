@@ -1,0 +1,6 @@
+item.memory_powder.name=Порошок памяти
+item.processing_chip.name=Чип обработки
+item.xp_cocktail.name=Коктейль опыта
+tile.xp_keeping_machine.name=Хранитель опыта
+itemGroup.xpmagic=XPMagic
+xpcocktail.storedexp=Сохранено опыта

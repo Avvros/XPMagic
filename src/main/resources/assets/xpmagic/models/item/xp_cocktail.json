@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "xpmagic:items/xp_cocktail"
+  }
+}

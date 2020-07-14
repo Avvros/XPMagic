@@ -1,5 +1,8 @@
 package com.gatheredsatyr53.xpmagic.blocks;
 
+import com.gatheredsatyr53.xpmagic.XPMagic;
+
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
@@ -9,6 +12,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
@@ -16,12 +20,25 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * јбстрактный класс блока-механизма, реализующий все 
+ * необходимые методы разностороннего блока и описывающий общие параметры
+ * (твЄрдость, инструмент добычи, материал и т.д.) всех механизмов
+ * @author alexz
+ *
+ */
 public abstract class Machine extends BlockContainer {
 	
 	public static final PropertyDirection FACING = BlockHorizontal.FACING;
 
-	protected Machine(Material materialIn) {
-		super(materialIn);
+	protected Machine(String name) {
+		super(Material.IRON);
+		this.setHardness(15);
+		this.setHarvestLevel("pickaxe", 1);
+        this.setRegistryName(name);
+        this.setUnlocalizedName(name);
+        setCreativeTab(XPMagic.XPMagicTab);
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
 		// TODO Auto-generated constructor stub
 	}
 	

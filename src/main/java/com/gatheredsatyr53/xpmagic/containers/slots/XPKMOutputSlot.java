@@ -5,13 +5,15 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
-public class XPKMOutputSlot extends Slot {
+public class XPKMOutputSlot extends SlotItemHandler {
 
-	private final EntityPlayerMP player;
+	private final EntityPlayer player;
 	private int removeCount;
 	
-	public XPKMOutputSlot(EntityPlayerMP player, IInventory inventoryIn, int index, int xPosition, int yPosition) {
+	public XPKMOutputSlot(EntityPlayer player, IItemHandler inventoryIn, int index, int xPosition, int yPosition) {
 		super(inventoryIn, index, xPosition, yPosition);
 		this.player = player;
 		// TODO Auto-generated constructor stub

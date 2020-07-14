@@ -17,6 +17,9 @@ out
 build
 .gradle
 
+# GIMP 2
+*.xcf
+
 # other
 eclipse
 run

@@ -9,6 +9,7 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.SlotFurnaceFuel;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemAir;
 import net.minecraft.item.ItemGlassBottle;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
@@ -19,13 +20,17 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.ItemStackHandler;
 
-public class XPKMTileEntity extends TileEntity implements ITickable, IItemHandler {
+public class XPKMTileEntity extends TileEntity implements ITickable {
 	
-	public NonNullList<ItemStack> keeperItemStacks = NonNullList.<ItemStack>withSize(4, ItemStack.EMPTY);
 	/** The number of ticks that the furnace will keep burning */
     public int furnaceBurnTime;
     /** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
@@ -33,16 +38,42 @@ public class XPKMTileEntity extends TileEntity implements ITickable, IItemHandle
     public int cookTime;
     public int totalCookTime;
     
-    public EntityPlayerMP user;
+    public EntityPlayer user;
+    
+    public ItemStackHandler inventory = new ItemStackHandler(4) {
 
-	@Override
-	public ItemStack getStackInSlot(int index) {
-		// TODO Auto-generated method stub
-		return this.keeperItemStacks.get(index);
-	}
+		@Override
+		protected void onContentsChanged(int slot) {
+			// TODO Auto-generated method stub
+			XPKMTileEntity.this.markDirty();
+		}
+		
+		@Override
+		public boolean isItemValid(int slot, ItemStack stack) {
+			// TODO Auto-generated method stub
+			switch (slot) {
+				case 3: 
+					return false;
+				case 2: 
+					return stack.getItem() instanceof MemoryPowder;
+				case 1:
+					ItemStack itemstack = this.stacks.get(1);
+		            return TileEntityFurnace.isItemFuel(stack) || SlotFurnaceFuel.isBucket(stack) && itemstack.getItem() != Items.BUCKET;
+				case 0:
+					return true; // stack.getItem() instanceof ItemGlassBottle;
+				default:
+					return false;
+			}
+		}
+    	
+    };
+    
+    public void setUser(EntityPlayer player) {
+    	this.user = player;
+    }
 
 	public boolean allIncluded() {
-		for (int i = 0; i < getSlots() - 1; i++) if (this.keeperItemStacks.get(i).isEmpty()) return false;
+		for (int i = 0; i < inventory.getSlots() - 1; i++) if (this.inventory.getStackInSlot(i).isEmpty()) return false;
 		return true;
 	}
 	
@@ -73,7 +104,7 @@ public class XPKMTileEntity extends TileEntity implements ITickable, IItemHandle
 
         if (!this.world.isRemote)
         {
-            ItemStack itemstack = this.keeperItemStacks.get(1);
+            ItemStack itemstack = this.inventory.getStackInSlot(1);
 
             if (this.isBurning() || allIncluded())
             {
@@ -89,12 +120,13 @@ public class XPKMTileEntity extends TileEntity implements ITickable, IItemHandle
                         if (!itemstack.isEmpty())
                         {
                             Item item = itemstack.getItem();
+                            this.totalCookTime = this.getCookTime(itemstack);
                             itemstack.shrink(1);
 
                             if (itemstack.isEmpty())
                             {
                                 ItemStack item1 = item.getContainerItem(itemstack);
-                                this.keeperItemStacks.set(1, item1);
+                                this.inventory.setStackInSlot(1, item1);
                             }
                         }
                     }
@@ -107,7 +139,7 @@ public class XPKMTileEntity extends TileEntity implements ITickable, IItemHandle
                     if (this.cookTime == this.totalCookTime)
                     {
                         this.cookTime = 0;
-                        this.totalCookTime = this.getCookTime(this.keeperItemStacks.get(0));
+                        this.totalCookTime = this.getCookTime(this.inventory.getStackInSlot(0));
                         this.pushXP();
                         flag1 = true;
                     }
@@ -133,34 +165,40 @@ public class XPKMTileEntity extends TileEntity implements ITickable, IItemHandle
 		// TODO Auto-generated method stub
 		if (this.canPush()) {
 			//ItemStack result = new ItemStack()
-			ItemStack itemstack = this.keeperItemStacks.get(0);
+			ItemStack itemstack = this.inventory.getStackInSlot(0);
             //ItemStack itemstack1 = keeperRecipes.instance().getPushingResult(itemstack);
 			ItemStack itemstack1 = new ItemStack(ItemsRegistry.XPCocktail);
-            ItemStack itemstack2 = this.keeperItemStacks.get(2);
+			ItemStack itemstack2 = this.inventory.getStackInSlot(2);
+            ItemStack itemstack3 = this.inventory.getStackInSlot(3);
 
-            if (itemstack2.isEmpty())
+            if (itemstack3.isEmpty())
             {
             	int expCount = 10;
-            	itemstack1.getTagCompound().setInteger("StoredExp", expCount);
+            	NBTTagCompound tag = new NBTTagCompound();
+            	tag.setInteger("StoredExp", expCount);
+            	itemstack1.setTagCompound(tag);
             	
             	// forum.mcmodding.ru/threads/1-6-x-kak-umenshit-opyt-igroka-na-chislo-ne-na-uroven.4242/
             	// Снятие опыта с игрока
             	// Спасибо dimka
             	int experienceTotalEnd = user.experienceTotal - expCount;
-            	do
-            	{
-            	    user.addExperienceLevel(-1);
-            	} while (user.experienceTotal >= experienceTotalEnd);
-            	user.addExperience(experienceTotalEnd - user.experienceTotal);
+            	if (experienceTotalEnd >= 0) {
+            		do
+            		{
+            			user.addExperienceLevel(-1);
+            		} while (user.experienceTotal >= experienceTotalEnd);
+            		user.addExperience(experienceTotalEnd - user.experienceTotal);
+            	}
             	// ---------------------------------------------------------------
             	
-                this.keeperItemStacks.set(2, itemstack1.copy());
+                this.inventory.setStackInSlot(3, itemstack1.copy());
             }
 			/*
 			 * else if (itemstack2.getItem() == itemstack1.getItem()) {
 			 * itemstack2.grow(itemstack1.getCount()); }
 			 */		
             itemstack.shrink(1);
+            itemstack2.shrink(1);
         }
 	}
 
@@ -176,14 +214,15 @@ public class XPKMTileEntity extends TileEntity implements ITickable, IItemHandle
 
 	private boolean canPush() {
 		// TODO Auto-generated method stub
-		if (((ItemStack)this.keeperItemStacks.get(0)).isEmpty())
+		if (user == null) return false;
+		if (((ItemStack)this.inventory.getStackInSlot(0)).isEmpty())
         {
             return false;
         }
         else
         {
-            //ItemStack itemstack = KeeperRecipes.instance().getPushingResult(this.keeperItemStacks.get(0));
-        	if (!isItemValid(0, this.keeperItemStacks.get(0)) || !isItemValid(2, this.keeperItemStacks.get(2))) {
+            //ItemStack itemstack = KeeperRecipes.instance().getPushingResult(this.inventory.getStackInSlot(0));
+        	if (!inventory.isItemValid(0, this.inventory.getStackInSlot(0)) || !inventory.isItemValid(2, this.inventory.getStackInSlot(2))) {
         		return false;
         	}
         	
@@ -194,7 +233,7 @@ public class XPKMTileEntity extends TileEntity implements ITickable, IItemHandle
             }
             else
             {
-                ItemStack itemstack1 = this.keeperItemStacks.get(2);
+                ItemStack itemstack1 = this.inventory.getStackInSlot(3);
 
                 if (itemstack1.isEmpty())
                 {
@@ -220,65 +259,15 @@ public class XPKMTileEntity extends TileEntity implements ITickable, IItemHandle
 		// TODO Auto-generated method stub
 		return this.furnaceBurnTime > 0;
 	}
-
-	@Override
-	public int getSlots() {
-		// TODO Auto-generated method stub
-		return 4;
-	}
-
-	@Override
-	public boolean isItemValid(int slot, ItemStack stack) {
-		// TODO Auto-generated method stub
-		switch (slot) {
-			case 3: 
-				return false;
-			case 2: 
-				return stack.getItem() instanceof MemoryPowder;
-			case 1:
-				ItemStack itemstack = this.keeperItemStacks.get(1);
-	            return TileEntityFurnace.isItemFuel(stack) || SlotFurnaceFuel.isBucket(stack) && itemstack.getItem() != Items.BUCKET;
-			case 0:
-				return stack.getItem() instanceof ItemGlassBottle;
-			default:
-				return false;
-		}
-	}
-
-	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-		// TODO Auto-generated method stub
-		if (!simulate && isItemValid(slot, stack)) this.keeperItemStacks.set(slot, stack);
-		return stack;
-	}
-
-	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
-		// TODO Auto-generated method stub
-		ItemStack stack = this.keeperItemStacks.get(slot);
-		amount = MathHelper.clamp(amount, 0, stack.getCount());
-		ItemStack result = new ItemStack(stack.getItem(), amount);
-		if (!simulate) {
-			stack.shrink(amount);
-		}
-		return result;
-	}
-
-	@Override
-	public int getSlotLimit(int slot) {
-		// TODO Auto-generated method stub
-		return 64;
-	}
 	
 	public void readFromNBT(NBTTagCompound compound)
     {
         super.readFromNBT(compound);
-        this.keeperItemStacks = NonNullList.<ItemStack>withSize(this.getSlots(), ItemStack.EMPTY);
-        ItemStackHelper.loadAllItems(compound, this.keeperItemStacks);
+        inventory.deserializeNBT(compound);
         this.furnaceBurnTime = compound.getInteger("BurnTime");
         this.cookTime = compound.getInteger("CookTime");
         this.totalCookTime = compound.getInteger("CookTimeTotal");
-        this.currentItemBurnTime = TileEntityFurnace.getItemBurnTime(this.keeperItemStacks.get(1));
+        this.currentItemBurnTime = TileEntityFurnace.getItemBurnTime(this.inventory.getStackInSlot(1));
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound compound)
@@ -287,16 +276,31 @@ public class XPKMTileEntity extends TileEntity implements ITickable, IItemHandle
         compound.setInteger("BurnTime", (short)this.furnaceBurnTime);
         compound.setInteger("CookTime", (short)this.cookTime);
         compound.setInteger("CookTimeTotal", (short)this.totalCookTime);
-        ItemStackHelper.saveAllItems(compound, this.keeperItemStacks);
+        compound.merge(inventory.serializeNBT());
         return compound;
     }
 	
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
 	  if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-	    return (T) this;
+	    return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(inventory);
 	  }
 	  return super.getCapability(capability, facing);
 	}
+
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		// TODO Auto-generated method stub
+		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return true;
+		return super.hasCapability(capability, facing);
+	}
+
+	@Override
+	public ITextComponent getDisplayName() {
+		// TODO Auto-generated method stub
+		return new TextComponentString(I18n.translateToLocal("tile.xp_keeping_machine.name"));
+	}
+	
+	
 
 }

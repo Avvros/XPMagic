@@ -1,4 +1,4 @@
-package com.gatheredsatyr53.xpmagic.tools;
+package com.gatheredsatyr53.xpmagic.services;
 
 import java.util.Random;
 
@@ -10,6 +10,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 
+/**
+ * Аналог ванильного {@link net.minecraft.inventory.InventoryHelper InventoryHelper} для IItemHandler
+ * @author alexz
+ *
+ */
 public class MachineInventoryHelper {
 	private static final Random RANDOM = new Random();
 

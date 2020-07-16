@@ -37,17 +37,18 @@ public class XPKMGui extends GuiContainer {
         int windowX = (this.width - this.xSize) / 2;
         int windowY = (this.height - this.ySize) / 2;
         this.drawTexturedModalRect(windowX, windowY, 0, 0, this.xSize, this.ySize);
-        
+		
         if (tileentity.isBurning())
         {
             int k = this.getBurnLeftScaled(13);
-            this.drawTexturedModalRect(windowX + BURNING_INDICATOR_X, windowY + 36 + 12 - k, ANIMATION_SECTOR_X, 12 - k, BURNING_PICTURE_WIDTH, k + 1);
+            //12 - k — смещение относительно Y позиции индикатора горения для начала отрисовки анимации. 
+            //Число меняется в зависимости от времени горения
+            this.drawTexturedModalRect(windowX + BURNING_INDICATOR_X, windowY + BURNING_INDICATOR_Y + 12 - k, ANIMATION_SECTOR_X, 12 - k, BURNING_PICTURE_WIDTH, k + 1);
         }
 
         int l = this.getCookProgressScaled(29);
-        this.drawTexturedModalRect(windowX + PROGRESS_INDICATOR_X, windowY + PROGRESS_INDICATOR_Y, ANIMATION_SECTOR_X, PROGRESS_ANIMATION_SECTOR_Y, l + 1, PROGRESS_PICTURE_HEIGHT);
+        this.drawTexturedModalRect(windowX + PROGRESS_INDICATOR_X, windowY + PROGRESS_INDICATOR_Y, ANIMATION_SECTOR_X, PROGRESS_ANIMATION_SECTOR_Y, l, PROGRESS_PICTURE_HEIGHT);
 	}
-	
 	
 	/**
 	 * @param maxLength Длина индикатора приготовления
@@ -63,15 +64,12 @@ public class XPKMGui extends GuiContainer {
 	/**
      * Draws the screen and all the components in it.
      */
+	@Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.renderHoveredToolTip(mouseX, mouseY);
-        
-        if(tileentity.isBurning()) {
-        	int k = this.getBurnLeftScaled(13);
-        }
     }
 
     /**
@@ -79,7 +77,7 @@ public class XPKMGui extends GuiContainer {
 	 * @return Длина заполненной части этого индикатора
 	 */
     private int getBurnLeftScaled(int maxLength) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub   
 		int i = this.tileentity.currentItemBurnTime;
 		if (i == 0) i = 200;
 		return this.tileentity.furnaceBurnTime * maxLength / i;

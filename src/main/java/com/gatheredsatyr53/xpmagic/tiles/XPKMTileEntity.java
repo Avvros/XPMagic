@@ -1,5 +1,7 @@
 package com.gatheredsatyr53.xpmagic.tiles;
 
+import javax.annotation.Nullable;
+
 import com.gatheredsatyr53.xpmagic.items.MemoryPowder;
 import com.gatheredsatyr53.xpmagic.registries.ItemsRegistry;
 
@@ -14,6 +16,8 @@ import net.minecraft.item.ItemGlassBottle;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.EnumFacing;
@@ -60,7 +64,7 @@ public class XPKMTileEntity extends TileEntity implements ITickable {
 					ItemStack itemstack = this.stacks.get(1);
 		            return TileEntityFurnace.isItemFuel(stack) || SlotFurnaceFuel.isBucket(stack) && itemstack.getItem() != Items.BUCKET;
 				case 0:
-					return true; // stack.getItem() instanceof ItemGlassBottle;
+					return stack.getItem() instanceof ItemGlassBottle;
 				default:
 					return false;
 			}
@@ -151,7 +155,7 @@ public class XPKMTileEntity extends TileEntity implements ITickable {
             }
             else if (!this.isBurning() && this.cookTime > 0)
             {
-                this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, this.totalCookTime);
+                 this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, this.totalCookTime);
             }
         }
 
@@ -300,7 +304,16 @@ public class XPKMTileEntity extends TileEntity implements ITickable {
 		// TODO Auto-generated method stub
 		return new TextComponentString(I18n.translateToLocal("tile.xp_keeping_machine.name"));
 	}
-	
-	
+
+	/*
+	 * @Nullable
+	 * 
+	 * @Override public SPacketUpdateTileEntity getUpdatePacket() { // TODO
+	 * Auto-generated method stub return new SPacketUpdateTileEntity(this.getPos(),
+	 * 0, getUpdateTag()); }
+	 * 
+	 * @Override public NBTTagCompound getUpdateTag() { // TODO Auto-generated
+	 * method stub return writeToNBT(new NBTTagCompound()); }
+	 */
 
 }

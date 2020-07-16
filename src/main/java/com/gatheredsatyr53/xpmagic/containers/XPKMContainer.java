@@ -20,7 +20,7 @@ import net.minecraftforge.items.SlotItemHandler;
 public class XPKMContainer extends Container {
 	
 	private final XPKMTileEntity tileentity;
-	private int cookTime, totalCookTime, burnTime, currentBurnTime;
+	public volatile int cookTime, totalCookTime, burnTime, currentBurnTime;
 
 	public XPKMContainer(InventoryPlayer player, XPKMTileEntity tileentity) {
 		this.tileentity = tileentity;
@@ -82,17 +82,30 @@ public class XPKMContainer extends Container {
             }
         }
 
-        this.cookTime = this.tileentity.cookTime;
-        this.burnTime = this.tileentity.furnaceBurnTime;
-        this.currentBurnTime = this.tileentity.currentItemBurnTime;
-        this.totalCookTime = this.tileentity.totalCookTime;
+        this.cookTime = this.tileentity.cookTime; //Data field 2
+        this.burnTime = this.tileentity.furnaceBurnTime; //Data field 0
+        this.currentBurnTime = this.tileentity.currentItemBurnTime; //Data field 1
+        this.totalCookTime = this.tileentity.totalCookTime; //Data field 3
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void updateProgressBar(int id, int data) {
 		// TODO Auto-generated method stub
-		super.updateProgressBar(id, data);
+		switch(id) {
+		case 0:
+			this.tileentity.furnaceBurnTime = data;
+			return;
+		case 1:
+			this.tileentity.currentItemBurnTime = data;
+			return;
+		case 2:
+			this.tileentity.cookTime = data;
+			return;
+		case 3:
+			this.tileentity.totalCookTime = data;
+			return;
+		}
 	}
 	
 	/**

@@ -5,15 +5,19 @@ public final class XPKMGuiBounds {
 	/**
 	 * Progress indicator X coordinate (relative to window X coordinate) 
 	 */
-	public static final int PROGRESS_INDICATOR_X = 78;
+	public static final int PROGRESS_INDICATOR_X = 77;
 	/**
 	 * Progress indicator X coordinate (relative to window X coordinate) 
 	 */
-	public static final int PROGRESS_INDICATOR_Y = 78;
+	public static final int PROGRESS_INDICATOR_Y = 41;
 	/**
 	 * Burning indicator X coordinate (relative to window X coordinate)
 	 */
 	public static final int BURNING_INDICATOR_X = 31;
+	/**
+	 * Burning indicator Y coordinate (relative to window Y coordinate)
+	 */
+	public static final int BURNING_INDICATOR_Y = 39;
 	
 	/**
 	 * Progress indicator height
